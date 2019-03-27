@@ -5,15 +5,47 @@
 
 
 (defn degrees [g]
-  "Calculates the degree centrality for each node"
-  )
+  (loop[ng {}
+        ag g]
+    (if(seq ag)
+      (recur (assoc ng (first (first ag)) (assoc (second (first ag)) :degree (count (get (second (first ag)) :neigh)))) (rest ag))
+      ng)))
+      
+  
+(defn getallnoeud [g e]
+  (loop[ne e
+        s #{}]
+    (if(seq ne)
+      (recur (rest ne) (clojure.set/union s (get (get g (first ne)) :neigh)))
+      s)))
+      
+
+(defn ajnoeud [m l t]
+  (loop[m m
+        nl l]
+    (if(seq nl)
+      (if(contains? m (first nl))
+        (recur m  (rest nl))
+        (recur (assoc m (first nl) t) (rest nl)))
+      m)))
 
 (defn distance [g n]
-  "Calculate the distances of one node to all the others")
+  (loop[m (assoc {} n 0.0)
+        t 1.0
+        e (set (list n))]
+    (if(< (count e) (count g))
+      (let[l (getallnoeud g e)]
+        (recur (ajnoeud m l t) (+ t 1) (clojure.set/union e l)))
+      m)))
+        
 
 (defn closeness [g n]
-  "Returns the closeness for node n in graph g")
+  (reduce + (map (fn [x ] (if (== x 0) 0 (float (/ 1 x)))) (vals (distance g n)))))
 
 
 (defn closeness-all [g]
-  "Returns the closeness for all nodes in graph g")
+  (loop[ng {}
+        ag g]
+    (if(seq ag)
+      (recur (assoc ng (first (first ag)) (assoc (second (first ag)) :close (closeness g (first (first ag))))) (rest ag))
+      ng)))

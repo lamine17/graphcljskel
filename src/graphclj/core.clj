@@ -6,4 +6,9 @@
 
 (defn -main
   [& args]
-  (print "test"))
+  (tools/to-dot (tools/rank-nodes (central/closeness-all (central/degrees (graph/gen-graph (tools/readfile (first args))))) (second args))))
+
+
+(defn -main1
+  [& args]
+  (central/closeness-all (central/degrees (graph/gen-graph (tools/readfile (first args))))))
